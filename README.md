@@ -170,3 +170,4 @@ I'd like to give special thanks to the people that made this project possible;
 - Gavin Stone at [MSPGeek](https://mspgeek.org)
 - MSP2.0 for helping with some visual input.
 - Scott, Chris, Jon, and others that helped me with some of the internals of the app.
+
