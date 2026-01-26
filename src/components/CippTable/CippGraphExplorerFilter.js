@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Button, Typography } from "@mui/material";
+import { Button, Link, Typography } from "@mui/material";
 import {
   Save as SaveIcon,
   Delete,
@@ -28,6 +28,7 @@ const CippGraphExplorerFilter = ({
   onSubmitFilter,
   onPresetChange,
   component = "accordion",
+  relatedQueryKeys = [],
 }) => {
   const [offCanvasOpen, setOffCanvasOpen] = useState(false);
   const [cardExpanded, setCardExpanded] = useState(true);
@@ -40,6 +41,7 @@ const CippGraphExplorerFilter = ({
     mode: "onChange",
     defaultValues: {
       endpoint: "",
+      version: { label: "beta", value: "beta" },
       $select: [],
       $filter: "",
       $expand: "",
@@ -162,7 +164,7 @@ const CippGraphExplorerFilter = ({
   }, [currentEndpoint, debouncedRefetch]);
 
   const savePresetApi = ApiPostCall({
-    relatedQueryKeys: ["ListGraphExplorerPresets", "ListGraphRequest"],
+    relatedQueryKeys: ["ListGraphExplorerPresets*", "ListGraphRequest", ...relatedQueryKeys],
   });
 
   // Save preset function
@@ -208,6 +210,21 @@ const CippGraphExplorerFilter = ({
             ?.split(",")
             .map((item) => ({ label: item, value: item })))
         : (selectedPresets.addedFields.params.$select = []);
+
+      // Convert version string to autocomplete object format, default to beta if not present
+      if (selectedPresets.addedFields.params.version) {
+        const versionValue =
+          typeof selectedPresets.addedFields.params.version === "string"
+            ? selectedPresets.addedFields.params.version
+            : selectedPresets.addedFields.params.version.value;
+        selectedPresets.addedFields.params.version = {
+          label: versionValue,
+          value: versionValue,
+        };
+      } else {
+        selectedPresets.addedFields.params.version = { label: "beta", value: "beta" };
+      }
+
       selectedPresets.addedFields.params.id = selectedPresets.value;
       setSelectedPreset(selectedPresets.value);
       selectedPresets.addedFields.params.name = selectedPresets.label;
@@ -366,6 +383,11 @@ const CippGraphExplorerFilter = ({
     if (newvals?.$select !== undefined && Array.isArray(newvals?.$select)) {
       newvals.$select = newvals?.$select.map((p) => p.value).join(",");
     }
+    if (newvals.version && newvals.version.value) {
+      newvals.version = newvals.version.value;
+    } else if (!newvals.version) {
+      newvals.version = "beta";
+    }
     delete newvals["reportTemplate"];
     delete newvals["tenantFilter"];
     delete newvals["IsShared"];
@@ -397,6 +419,9 @@ const CippGraphExplorerFilter = ({
         <Typography variant="h5" sx={{ mb: 2 }}>
           Import / Export Graph Explorer Preset
         </Typography>
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          Copy the JSON below to export your preset, or paste a preset JSON to import it.
+        </Typography>
         <CippCodeBlock
           type="editor"
           onChange={(value) => setEditorValues(JSON.parse(value))}
@@ -411,6 +436,7 @@ const CippGraphExplorerFilter = ({
           }}
           variant="contained"
           color="primary"
+          sx={{ mt: 2 }}
         >
           Import Template
         </Button>
@@ -426,6 +452,11 @@ const CippGraphExplorerFilter = ({
   const onSubmit = (values) => {
     if (values.$select && Array.isArray(values.$select) && values.$select.length > 0) {
       values.$select = values?.$select?.map((item) => item.value)?.join(",");
+    }
+    if (values.version && values.version.value) {
+      values.version = values.version.value;
+    } else if (!values.version) {
+      values.version = "beta";
     }
     if (values.ReverseTenantLookup === false) {
       delete values.ReverseTenantLookup;
@@ -558,6 +589,7 @@ const CippGraphExplorerFilter = ({
                 </li>
               )}
               placeholder="Select a preset"
+              helperText="Select an existing preset to load its parameters"
             />
           </Grid>
 
@@ -580,6 +612,35 @@ const CippGraphExplorerFilter = ({
               formControl={formControl}
               disabled={endpointFilter ? true : false}
               placeholder="Enter Graph API endpoint"
+              helperText={
+                <>
+                  The{" "}
+                  <Link
+                    href="https://learn.microsoft.com/en-us/graph/api/overview?view=graph-rest-beta"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Graph endpoint
+                  </Link>{" "}
+                  to query (e.g. https://graph.microsoft.com/beta/$Endpoint)
+                </>
+              }
+            />
+          </Grid>
+
+          <Grid size={gridItemSize}>
+            <CippFormComponent
+              type="autoComplete"
+              name="version"
+              label="API Version"
+              formControl={formControl}
+              multiple={false}
+              options={[
+                { label: "beta", value: "beta" },
+                { label: "v1.0", value: "v1.0" },
+              ]}
+              placeholder="Select API version"
+              helperText="Graph API version to use"
             />
           </Grid>
 
@@ -601,7 +662,7 @@ const CippGraphExplorerFilter = ({
                 ]
               }
               placeholder="Columns to select"
-              helperText="Comma-separated list of columns to include in the response"
+              helperText="List of object properties to include in the response"
             />
           </Grid>
 
@@ -613,6 +674,17 @@ const CippGraphExplorerFilter = ({
               label="Filter"
               formControl={formControl}
               placeholder="OData filter"
+              helperText={
+                <Link
+                  href="https://learn.microsoft.com/en-us/graph/filter-query-parameter?tabs=http"
+                  target="_blank"
+                  rel="noreferrer"
+                  sx={{ color: "primary.main" }}
+                  underline="hover"
+                >
+                  Graph $filter query
+                </Link>
+              }
             />
           </Grid>
 

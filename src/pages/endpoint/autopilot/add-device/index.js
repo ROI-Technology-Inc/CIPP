@@ -2,9 +2,7 @@ import { Layout as DashboardLayout } from "/src/layouts/index.js";
 import { CippWizardConfirmation } from "/src/components/CippWizard/CippWizardConfirmation";
 import CippWizardPage from "/src/components/CippWizard/CippWizardPage.jsx";
 import { CippTenantStep } from "/src/components/CippWizard/CippTenantStep.jsx";
-import { useSettings } from "../../../../hooks/use-settings";
-import { CippWizardCSVImport } from "../../../../components/CippWizard/CippWizardCSVImport";
-import { CippWizardBulkOptions } from "../../../../components/CippWizard/CippWizardBulkOptions";
+import { CippWizardAutopilotImport } from "../../../../components/CippWizard/CippWizardAutopilotImport";
 import { CippWizardAutopilotOptions } from "../../../../components/CippWizard/CippWizardAutopilotOptions";
 
 const Page = () => {
@@ -21,37 +19,37 @@ const Page = () => {
     {
       title: "Step 2",
       description: "Device Import",
-      component: CippWizardCSVImport,
+      component: CippWizardAutopilotImport,
       componentProps: {
         name: "autopilotData",
         fields: [
-          { 
-            friendlyName: "Serialnumber", 
+          {
+            friendlyName: "Serialnumber",
             propertyName: "SerialNumber",
-            alternativePropertyNames: ["Device Serial Number"]
+            alternativePropertyNames: ["Device Serial Number"],
           },
-          { 
-            friendlyName: "Manufacturer", 
+          {
+            friendlyName: "Manufacturer",
             propertyName: "oemManufacturerName",
-            alternativePropertyNames: ["Manufacturer name"]
+            alternativePropertyNames: ["Manufacturer name"],
           },
-          { 
-            friendlyName: "Model", 
+          {
+            friendlyName: "Model",
             propertyName: "modelName",
-            alternativePropertyNames: ["Device model"]
+            alternativePropertyNames: ["Device model"],
           },
-          { 
-            friendlyName: "Product ID", 
+          {
+            friendlyName: "Product ID",
             propertyName: "productKey",
-            alternativePropertyNames: ["Windows Product ID"]
+            alternativePropertyNames: ["Windows Product ID"],
           },
-          { 
-            friendlyName: "Hardware hash", 
+          {
+            friendlyName: "Hardware hash",
             propertyName: "hardwareHash",
-            alternativePropertyNames: ["Hardware Hash"]
-          }
+            alternativePropertyNames: ["Hardware Hash"],
+          },
         ],
-        fileName: "autopilot-template"
+        fileName: "autopilot-template",
       },
     },
     {

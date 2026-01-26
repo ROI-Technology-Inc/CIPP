@@ -78,6 +78,9 @@ const initialSettings = {
     colour: "#F77F00",
     logo: null,
   },
+  persistFilters: false,
+  lastUsedFilters: {},
+  breadcrumbMode: "hierarchical",
 };
 
 const initialState = {
@@ -90,6 +93,7 @@ export const SettingsContext = createContext({
   handleReset: () => {},
   handleUpdate: () => {},
   isCustom: false,
+  setLastUsedFilter: () => {},
 });
 
 export const SettingsProvider = (props) => {
@@ -107,6 +111,12 @@ export const SettingsProvider = (props) => {
       setState((prevState) => ({
         ...prevState,
         ...restored,
+        isInitialized: true,
+      }));
+    } else {
+      // No stored settings found, initialize with defaults
+      setState((prevState) => ({
+        ...prevState,
         isInitialized: true,
       }));
     }
@@ -150,6 +160,19 @@ export const SettingsProvider = (props) => {
         handleReset,
         handleUpdate,
         isCustom,
+        setLastUsedFilter: (page, filter) => {
+          setState((prevState) => {
+            const updated = {
+              ...prevState,
+              lastUsedFilters: {
+                ...prevState.lastUsedFilters,
+                [page]: filter,
+              },
+            };
+            storeSettings(updated);
+            return updated;
+          });
+        },
       }}
     >
       {children}
